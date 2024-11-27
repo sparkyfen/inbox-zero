@@ -30,9 +30,22 @@ function getModel({ aiProvider, aiModel, aiApiKey }: UserAIFields) {
   if (provider === Provider.OPEN_AI) {
     const model = aiModel || Model.GPT_4O;
     return {
-      provider: Provider.OPEN_AI,
+      provider,
       model,
       llmModel: createOpenAI({ apiKey: aiApiKey || env.OPENAI_API_KEY })(model),
+    };
+  }
+
+  if (provider === Provider.PERPLEXITY) {
+    const model = aiModel || Model.LLAMA_3_1_SONAR_LARGE_PERPLEXITY;
+    return {
+      provider,
+      model,
+      llmModel: createOpenAI({
+        name: 'perplexity',
+        apiKey: aiApiKey || env.OPENAI_API_KEY,
+        baseURL: env.PERPLEXITY_BASE_URL,
+      })(model),
     };
   }
 
@@ -40,7 +53,7 @@ function getModel({ aiProvider, aiModel, aiApiKey }: UserAIFields) {
     if (aiApiKey) {
       const model = aiModel || Model.CLAUDE_3_5_SONNET_ANTHROPIC;
       return {
-        provider: Provider.ANTHROPIC,
+        provider,
         model,
         llmModel: createAnthropic({ apiKey: aiApiKey })(model),
       };
@@ -53,7 +66,7 @@ function getModel({ aiProvider, aiModel, aiApiKey }: UserAIFields) {
     const model = aiModel || Model.CLAUDE_3_5_SONNET_BEDROCK;
 
     return {
-      provider: Provider.ANTHROPIC,
+      provider,
       model,
       llmModel: createAmazonBedrock({
         bedrockOptions: {
